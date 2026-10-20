@@ -165,18 +165,18 @@ function initDb(db: DatabaseSync) {
 
 // Curated high quality authentic imagery mapping for popular Indian sweets & snacks
 const POPULAR_IMAGES: Record<string, string> = {
-  'kaju-katli': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
+  'kaju-katli': '/images/sweets-platter.jpg',
   'gulab-jamun': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
   'kala-jamun': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
   'dry-jamun': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
   'rasgulla': 'https://images.unsplash.com/photo-1605197148560-eb0df046bc25?auto=format&fit=crop&w=600&q=80',
   'rajbhog': 'https://images.unsplash.com/photo-1605197148560-eb0df046bc25?auto=format&fit=crop&w=600&q=80',
   'rasmalai': 'https://images.unsplash.com/photo-1605197148560-eb0df046bc25?auto=format&fit=crop&w=600&q=80',
-  'motichur-laddu': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
-  'besan-laddu': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
-  'boondi-laddu': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
-  'mysore-pak': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
-  'milk-cake': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
+  'motichur-laddu': '/images/sweets-platter.jpg',
+  'besan-laddu': '/images/sweets-platter.jpg',
+  'boondi-laddu': '/images/sweets-platter.jpg',
+  'mysore-pak': '/images/sweets-platter.jpg',
+  'milk-cake': '/images/sweets-platter.jpg',
   'samosa': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
   'mini-samosa': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
   'dhokla': 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&w=600&q=80',
@@ -188,12 +188,12 @@ const POPULAR_IMAGES: Record<string, string> = {
   'onion-kachori': 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
   'bhakarwadi': 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&w=600&q=80',
   'chakli': 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&w=600&q=80',
-  'gajar-ka-halwa': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
-  'ghevar': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
+  'gajar-ka-halwa': '/images/sweets-platter.jpg',
+  'ghevar': '/images/sweets-platter.jpg',
 };
 
 const CATEGORY_DEFAULT_IMAGES: Record<CategoryType, string> = {
-  SWEETS: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80',
+  SWEETS: '/images/sweets-platter.jpg',
   NAMKEEN: 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&w=600&q=80',
   SNACKS: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
   ACCOMPANIMENTS: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80',
