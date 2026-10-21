@@ -25,6 +25,7 @@ import {
   Check,
   X,
   RefreshCw,
+  Mail,
 } from 'lucide-react';
 import { Order, Product, StoreSettings, OrderStatus, PaymentStatus } from '@/lib/types';
 
@@ -69,6 +70,24 @@ export default function AdminDashboard() {
   // Settings Save State
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsNotice, setSettingsNotice] = useState('');
+
+  // Email Test Diagnostic State
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [emailTestStatus, setEmailTestStatus] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleSendTestEmail = async () => {
+    setTestingEmail(true);
+    setEmailTestStatus(null);
+    try {
+      const res = await fetch('/api/admin/test-email', { method: 'POST' });
+      const data = await res.json();
+      setEmailTestStatus(data);
+    } catch (err: any) {
+      setEmailTestStatus({ success: false, message: err.message || 'Network request failed' });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
 
   // Check auth on mount
   useEffect(() => {
@@ -764,7 +783,8 @@ export default function AdminDashboard() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[11px] sticky top-0 z-10">
                   <tr>
-                    <th className="p-3">SL</th>
+                    <th className="p-3 w-12 text-center">SL</th>
+                    <th className="p-3 w-14">Image</th>
                     <th className="p-3">Product Name</th>
                     <th className="p-3">Category</th>
                     <th className="p-3">Unit</th>
@@ -776,17 +796,37 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-stone-100">
                   {filteredProducts.map(p => (
                     <tr key={p.id} className="hover:bg-amber-50/40">
-                      <td className="p-3 font-mono text-stone-400">#{p.slNo}</td>
+                      <td className="p-3 font-mono text-stone-400 text-center">#{p.slNo}</td>
 
-                      <td className="p-3 font-bold text-stone-900 flex items-center gap-2">
-                        <span className="veg-icon shrink-0">
-                          <span className="veg-icon-dot" />
-                        </span>
-                        <span>{p.name}</span>
-                        {p.featured && (
-                          <span className="text-[10px] bg-brand-100 text-brand-800 font-bold px-1.5 py-0.2 rounded">
-                            Popular
+                      <td className="p-2.5">
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-amber-200 bg-orange-50 shrink-0 shadow-2xs">
+                          <img
+                            src={p.image || '/images/sweets-platter.jpg'}
+                            alt={p.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/images/sweets-platter.jpg';
+                            }}
+                          />
+                        </div>
+                      </td>
+
+                      <td className="p-3 font-bold text-stone-900">
+                        <div className="flex items-center gap-1.5">
+                          <span className="veg-icon shrink-0">
+                            <span className="veg-icon-dot" />
                           </span>
+                          <span>{p.name}</span>
+                          {p.featured && (
+                            <span className="text-[10px] bg-brand-100 text-brand-800 font-bold px-1.5 py-0.2 rounded">
+                              Popular
+                            </span>
+                          )}
+                        </div>
+                        {p.description && (
+                          <div className="text-[10px] text-stone-400 font-normal line-clamp-1 max-w-xs mt-0.5">
+                            {p.description}
+                          </div>
                         )}
                       </td>
 
@@ -943,6 +983,35 @@ export default function AdminDashboard() {
                 className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl"
               />
             </div>
+          </div>
+
+          {/* Email Notification Diagnostic & Test */}
+          <div className="border-t border-stone-200 pt-5 mt-4">
+            <h3 className="text-sm font-bold text-stone-900 mb-1 flex items-center gap-2">
+              <Mail className="w-4 h-4 text-brand-600" />
+              <span>Email Order Notifications</span>
+            </h3>
+            <p className="text-xs text-stone-500 mb-3">
+              Order confirmations and receipts are dispatched to <strong>sribhog2026@gmail.com</strong> whenever customers place orders.
+            </p>
+
+            {emailTestStatus && (
+              <div className={`p-3 rounded-xl text-xs mb-3 border ${
+                emailTestStatus.success ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'
+              }`}>
+                {emailTestStatus.message}
+              </div>
+            )}
+
+            <button
+              type="button"
+              disabled={testingEmail}
+              onClick={handleSendTestEmail}
+              className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-xs flex items-center gap-2 cursor-pointer"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>{testingEmail ? 'Sending Test Email...' : 'Send Test Email to sribhog2026@gmail.com'}</span>
+            </button>
           </div>
 
           <button
@@ -1129,14 +1198,42 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-700 mb-1">Product Image URL</label>
-                <input
-                  type="url"
-                  value={prodFormData.image}
-                  onChange={e => setProdFormData({ ...prodFormData, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/... or /images/..."
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl font-mono text-[11px]"
-                />
+                <label className="block font-semibold text-stone-700 mb-1">Product Image URL or Path</label>
+                <div className="flex items-center gap-3">
+                  <div className="relative w-12 h-12 rounded-xl overflow-hidden border-2 border-orange-200 bg-orange-50 shrink-0 shadow-xs">
+                    <img
+                      src={prodFormData.image || '/images/sweets-platter.jpg'}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/sweets-platter.jpg';
+                      }}
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    value={prodFormData.image}
+                    onChange={e => setProdFormData({ ...prodFormData, image: e.target.value.trim() })}
+                    placeholder="/images/sweets-platter.jpg or https://..."
+                    className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl font-mono text-[11px]"
+                  />
+                </div>
+                <div className="flex gap-2 mt-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setProdFormData({ ...prodFormData, image: '/images/sweets-platter.jpg' })}
+                    className="text-[10px] bg-orange-100 hover:bg-orange-200 text-brand-900 px-2 py-0.5 rounded font-semibold transition"
+                  >
+                    Use Sweet Platter
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setProdFormData({ ...prodFormData, image: '/images/logo.png' })}
+                    className="text-[10px] bg-stone-100 hover:bg-stone-200 text-stone-700 px-2 py-0.5 rounded font-semibold transition"
+                  >
+                    Use Store Logo
+                  </button>
+                </div>
               </div>
 
               <div>

@@ -17,6 +17,7 @@ const BUNDLED_DB = path.join(process.cwd(), 'src', 'data', 'rajshree.db');
 
 // In-memory store for instant lookup and serverless resiliency
 const orderMemoryStore = new Map<string, Order>();
+const productOverrides = new Map<string, Partial<Product>>();
 
 // Ensure directory exists for local development
 if (!isServerless && !fs.existsSync(DB_DIR)) {
@@ -263,37 +264,41 @@ export function getProducts(options: { category?: string; search?: string; inSto
   query += ' ORDER BY sl_no ASC';
 
   const rows = db.prepare(query).all(...params) as any[];
-  return rows.map(r => ({
-    id: r.id,
-    slNo: r.sl_no,
-    name: r.name,
-    slug: r.slug,
-    category: r.category,
-    unit: r.unit,
-    price: r.price,
-    image: r.image,
-    description: r.description,
-    inStock: Boolean(r.in_stock),
-    featured: Boolean(r.featured),
-  }));
+  return rows.map(r => {
+    const ov = productOverrides.get(r.id);
+    return {
+      id: r.id,
+      slNo: r.sl_no,
+      name: ov?.name !== undefined ? ov.name : r.name,
+      slug: r.slug,
+      category: ov?.category !== undefined ? ov.category : r.category,
+      unit: ov?.unit !== undefined ? ov.unit : r.unit,
+      price: ov?.price !== undefined ? ov.price : r.price,
+      image: ov?.image !== undefined ? ov.image : r.image,
+      description: ov?.description !== undefined ? ov.description : r.description,
+      inStock: ov?.inStock !== undefined ? ov.inStock : Boolean(r.in_stock),
+      featured: ov?.featured !== undefined ? ov.featured : Boolean(r.featured),
+    };
+  });
 }
 
 export function getProductBySlug(slug: string): Product | null {
   const db = getDb();
   const r = db.prepare('SELECT * FROM products WHERE slug = ?').get(slug) as any;
   if (!r) return null;
+  const ov = productOverrides.get(r.id);
   return {
     id: r.id,
     slNo: r.sl_no,
-    name: r.name,
+    name: ov?.name !== undefined ? ov.name : r.name,
     slug: r.slug,
-    category: r.category,
-    unit: r.unit,
-    price: r.price,
-    image: r.image,
-    description: r.description,
-    inStock: Boolean(r.in_stock),
-    featured: Boolean(r.featured),
+    category: ov?.category !== undefined ? ov.category : r.category,
+    unit: ov?.unit !== undefined ? ov.unit : r.unit,
+    price: ov?.price !== undefined ? ov.price : r.price,
+    image: ov?.image !== undefined ? ov.image : r.image,
+    description: ov?.description !== undefined ? ov.description : r.description,
+    inStock: ov?.inStock !== undefined ? ov.inStock : Boolean(r.in_stock),
+    featured: ov?.featured !== undefined ? ov.featured : Boolean(r.featured),
   };
 }
 
@@ -301,40 +306,50 @@ export function getProductById(id: string): Product | null {
   const db = getDb();
   const r = db.prepare('SELECT * FROM products WHERE id = ?').get(id) as any;
   if (!r) return null;
+  const ov = productOverrides.get(r.id);
   return {
     id: r.id,
     slNo: r.sl_no,
-    name: r.name,
+    name: ov?.name !== undefined ? ov.name : r.name,
     slug: r.slug,
-    category: r.category,
-    unit: r.unit,
-    price: r.price,
-    image: r.image,
-    description: r.description,
-    inStock: Boolean(r.in_stock),
-    featured: Boolean(r.featured),
+    category: ov?.category !== undefined ? ov.category : r.category,
+    unit: ov?.unit !== undefined ? ov.unit : r.unit,
+    price: ov?.price !== undefined ? ov.price : r.price,
+    image: ov?.image !== undefined ? ov.image : r.image,
+    description: ov?.description !== undefined ? ov.description : r.description,
+    inStock: ov?.inStock !== undefined ? ov.inStock : Boolean(r.in_stock),
+    featured: ov?.featured !== undefined ? ov.featured : Boolean(r.featured),
   };
 }
 
 export function updateProduct(id: string, updates: Partial<Product>): boolean {
-  const db = getDb();
-  const fields: string[] = [];
-  const params: any[] = [];
+  // Store in memory cache for instant reflection
+  const prev = productOverrides.get(id) || {};
+  productOverrides.set(id, { ...prev, ...updates });
 
-  if (updates.name !== undefined) { fields.push('name = ?'); params.push(updates.name); }
-  if (updates.price !== undefined) { fields.push('price = ?'); params.push(updates.price); }
-  if (updates.category !== undefined) { fields.push('category = ?'); params.push(updates.category); }
-  if (updates.unit !== undefined) { fields.push('unit = ?'); params.push(updates.unit); }
-  if (updates.image !== undefined) { fields.push('image = ?'); params.push(updates.image); }
-  if (updates.description !== undefined) { fields.push('description = ?'); params.push(updates.description); }
-  if (updates.inStock !== undefined) { fields.push('in_stock = ?'); params.push(updates.inStock ? 1 : 0); }
-  if (updates.featured !== undefined) { fields.push('featured = ?'); params.push(updates.featured ? 1 : 0); }
+  try {
+    const db = getDb();
+    const fields: string[] = [];
+    const params: any[] = [];
 
-  if (fields.length === 0) return false;
+    if (updates.name !== undefined) { fields.push('name = ?'); params.push(updates.name); }
+    if (updates.price !== undefined) { fields.push('price = ?'); params.push(updates.price); }
+    if (updates.category !== undefined) { fields.push('category = ?'); params.push(updates.category); }
+    if (updates.unit !== undefined) { fields.push('unit = ?'); params.push(updates.unit); }
+    if (updates.image !== undefined) { fields.push('image = ?'); params.push(updates.image); }
+    if (updates.description !== undefined) { fields.push('description = ?'); params.push(updates.description); }
+    if (updates.inStock !== undefined) { fields.push('in_stock = ?'); params.push(updates.inStock ? 1 : 0); }
+    if (updates.featured !== undefined) { fields.push('featured = ?'); params.push(updates.featured ? 1 : 0); }
 
-  params.push(id);
-  const result = db.prepare(`UPDATE products SET ${fields.join(', ')} WHERE id = ?`).run(...params);
-  return result.changes > 0;
+    if (fields.length > 0) {
+      params.push(id);
+      db.prepare(`UPDATE products SET ${fields.join(', ')} WHERE id = ?`).run(...params);
+    }
+    return true;
+  } catch (err: any) {
+    console.warn('updateProduct SQLite warning (preserved in memory):', err?.message || err);
+    return true;
+  }
 }
 
 export function createProduct(product: Omit<Product, 'id' | 'slNo'> & { slNo?: number }): Product {

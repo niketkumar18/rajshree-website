@@ -241,19 +241,17 @@ Direct WhatsApp Contact: https://wa.me/91${order.customerPhone.replace(/\\D/g, '
 
   // 2. Check if SMTP / Gmail credentials are configured
   const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || 'sribhog2026@gmail.com';
-  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
-  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const smtpPort = Number(process.env.SMTP_PORT) || 465;
+  const rawPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const cleanPass = rawPass ? rawPass.replace(/\s+/g, '').trim() : '';
 
-  if (smtpPass) {
+  if (cleanPass) {
     try {
+      console.log(`[SMTP_DISPATCH] Connecting to Gmail SMTP for ${smtpUser}...`);
       const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpPort === 465,
+        service: 'gmail',
         auth: {
           user: smtpUser,
-          pass: smtpPass,
+          pass: cleanPass,
         },
       });
 
@@ -290,4 +288,60 @@ Direct WhatsApp Contact: https://wa.me/91${order.customerPhone.replace(/\\D/g, '
     deliveredTo: storeEmail,
     messageId: `logged-${order.orderRef}`,
   };
+}
+
+export async function sendTestEmail(): Promise<{ success: boolean; message: string; details?: any }> {
+  const storeEmail = 'sribhog2026@gmail.com';
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER || 'sribhog2026@gmail.com';
+  const rawPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const cleanPass = rawPass ? rawPass.replace(/\s+/g, '').trim() : '';
+
+  if (!cleanPass) {
+    return {
+      success: false,
+      message: 'GMAIL_APP_PASSWORD environment variable is not detected. Please make sure it is added in Vercel and redeployed.',
+    };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: smtpUser,
+        pass: cleanPass,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: `"Rajshree Sweets" <${smtpUser}>`,
+      to: storeEmail,
+      subject: '✅ Test Order Notification - Rajshree Sweets & Snacks',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 24px; border: 2px solid #ea580c; border-radius: 16px; background: #fff7ed; max-width: 550px; margin: 0 auto;">
+          <h2 style="color: #c2410c; margin: 0 0 8px; font-family: Georgia, serif;">॥ जय श्री राम ॥</h2>
+          <h3 style="color: #431407; margin: 0 0 12px;">Rajshree Sweets Email Delivery is Active!</h3>
+          <p style="color: #7c2d12; font-size: 14px; line-height: 1.5;">
+            Your Gmail App Password has been authenticated successfully. When customers place orders on <strong>https://sribhog.in</strong>, order notifications will arrive directly in your inbox.
+          </p>
+          <div style="background: white; border: 1px solid #fed7aa; border-radius: 8px; padding: 12px; margin-top: 16px; font-size: 13px; color: #431407;">
+            <strong>Test Timestamp:</strong> ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} (IST)<br>
+            <strong>Authenticated User:</strong> ${smtpUser}<br>
+            <strong>Recipient:</strong> ${storeEmail}
+          </div>
+        </div>
+      `,
+    });
+
+    return {
+      success: true,
+      message: `Test email sent successfully to ${storeEmail}! (Message ID: ${info.messageId})`,
+      details: { messageId: info.messageId },
+    };
+  } catch (err: any) {
+    console.error('[TEST_EMAIL_FAILED]', err);
+    return {
+      success: false,
+      message: `Gmail SMTP Authentication Failed: ${err.message}`,
+    };
+  }
 }
