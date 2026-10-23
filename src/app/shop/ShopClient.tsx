@@ -11,6 +11,18 @@ interface ShopClientProps {
 }
 
 export default function ShopClient({ initialProducts }: ShopClientProps) {
+  const [productsList, setProductsList] = useState<Product[]>(initialProducts);
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem('rajshree_prod_overrides');
+      if (raw) {
+        const ov = JSON.parse(raw);
+        setProductsList(prev => prev.map(p => ov[p.id] ? { ...p, ...ov[p.id] } : p));
+      }
+    } catch (e) {}
+  }, []);
+
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get('category') || 'ALL';
 
@@ -28,7 +40,7 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
   ];
 
   const filteredProducts = useMemo(() => {
-    return initialProducts.filter((product) => {
+    return productsList.filter((product) => {
       // Category filter
       if (selectedCategory !== 'ALL' && product.category !== selectedCategory) {
         return false;
@@ -51,7 +63,7 @@ export default function ShopClient({ initialProducts }: ShopClientProps) {
       if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
       return a.slNo - b.slNo;
     });
-  }, [initialProducts, selectedCategory, searchQuery, inStockOnly, sortBy]);
+  }, [productsList, selectedCategory, searchQuery, inStockOnly, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

@@ -28,6 +28,21 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   });
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [detailImage, setDetailImage] = useState(product.image || `/images/products/${product.slug}.jpg`);
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem('rajshree_prod_overrides');
+      if (raw) {
+        const ov = JSON.parse(raw);
+        if (ov[product.id]?.image) {
+          setDetailImage(ov[product.id].image);
+          return;
+        }
+      }
+    } catch (e) {}
+    setDetailImage(product.image || `/images/products/${product.slug}.jpg`);
+  }, [product.id, product.image, product.slug]);
 
   const currentVariantLabel = isKg
     ? selectedKgVariant.label
@@ -72,12 +87,14 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         {/* Left: Product Image */}
         <div className="lg:col-span-6">
           <div className="relative aspect-4/3 sm:aspect-square w-full rounded-2xl overflow-hidden bg-amber-50 border border-amber-200/50 shadow-inner">
-            {product.image ? (
+            {detailImage ? (
               <Image
-                src={product.image}
+                src={detailImage}
                 alt={product.name}
                 fill
                 priority
+                unoptimized={typeof detailImage === 'string' && detailImage.startsWith('http')}
+                onError={() => setDetailImage('/images/sweets-platter.jpg')}
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />

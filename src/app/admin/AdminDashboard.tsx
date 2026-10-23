@@ -27,7 +27,7 @@ import {
   RefreshCw,
   Mail,
 } from 'lucide-react';
-import { Order, Product, StoreSettings, OrderStatus, PaymentStatus } from '@/lib/types';
+import { Order, Product, StoreSettings, OrderStatus, PaymentStatus, CategoryType, UnitType } from '@/lib/types';
 
 export default function AdminDashboard() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
@@ -56,7 +56,16 @@ export default function AdminDashboard() {
   // Edit / Add Product Modal State
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
-  const [prodFormData, setProdFormData] = useState({
+  const [prodFormData, setProdFormData] = useState<{
+    name: string;
+    category: CategoryType;
+    unit: UnitType;
+    price: number;
+    image: string;
+    description: string;
+    inStock: boolean;
+    featured: boolean;
+  }>({
     name: '',
     category: 'SWEETS',
     unit: 'KG',
@@ -151,7 +160,15 @@ export default function AdminDashboard() {
       }
       if (prodRes.ok) {
         const d = await prodRes.json();
-        setProducts(d.products || []);
+        let prods: Product[] = d.products || [];
+        try {
+          const raw = localStorage.getItem('rajshree_prod_overrides');
+          if (raw) {
+            const ov = JSON.parse(raw);
+            prods = prods.map(p => ov[p.id] ? { ...p, ...ov[p.id] } : p);
+          }
+        } catch (e) {}
+        setProducts(prods);
       }
       if (setRes.ok) {
         const d = await setRes.json();
@@ -253,6 +270,19 @@ export default function AdminDashboard() {
           body: JSON.stringify({ id: editingProduct.id, updates: prodFormData }),
         });
         if (res.ok) {
+          const updated: Product = {
+            ...editingProduct,
+            ...prodFormData,
+            category: prodFormData.category as CategoryType,
+            unit: prodFormData.unit as UnitType,
+          };
+          setProducts(prev => prev.map(p => p.id === editingProduct.id ? updated : p));
+          try {
+            const raw = localStorage.getItem('rajshree_prod_overrides') || '{}';
+            const ov = JSON.parse(raw);
+            ov[editingProduct.id] = prodFormData;
+            localStorage.setItem('rajshree_prod_overrides', JSON.stringify(ov));
+          } catch (e) {}
           setEditingProduct(null);
           loadAllData();
         }
@@ -1162,7 +1192,7 @@ export default function AdminDashboard() {
                   <label className="block font-semibold text-stone-700 mb-1">Category</label>
                   <select
                     value={prodFormData.category}
-                    onChange={e => setProdFormData({ ...prodFormData, category: e.target.value })}
+                    onChange={e => setProdFormData({ ...prodFormData, category: e.target.value as CategoryType })}
                     className="w-full px-2 py-2 bg-stone-50 border border-stone-200 rounded-xl font-medium"
                   >
                     <option value="SWEETS">SWEETS</option>
@@ -1176,7 +1206,7 @@ export default function AdminDashboard() {
                   <label className="block font-semibold text-stone-700 mb-1">Unit</label>
                   <select
                     value={prodFormData.unit}
-                    onChange={e => setProdFormData({ ...prodFormData, unit: e.target.value })}
+                    onChange={e => setProdFormData({ ...prodFormData, unit: e.target.value as UnitType })}
                     className="w-full px-2 py-2 bg-stone-50 border border-stone-200 rounded-xl font-medium"
                   >
                     <option value="KG">KG</option>

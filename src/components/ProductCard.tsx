@@ -41,7 +41,11 @@ export default function ProductCard({ product }: ProductCardProps) {
     setTimeout(() => setAdded(false), 1200);
   };
 
-  const imageSrc = product.image || `/images/products/${product.slug}.jpg`;
+  const [imageSrc, setImageSrc] = useState(product.image || `/images/products/${product.slug}.jpg`);
+
+  React.useEffect(() => {
+    setImageSrc(product.image || `/images/products/${product.slug}.jpg`);
+  }, [product.image, product.slug]);
 
   return (
     <div className="group bg-white rounded-2xl border-2 border-orange-100 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden hover:border-brand-500">
@@ -51,6 +55,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           src={imageSrc}
           alt={product.name}
           fill
+          unoptimized={typeof imageSrc === 'string' && imageSrc.startsWith('http')}
+          onError={() => setImageSrc('/images/sweets-platter.jpg')}
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
         />
