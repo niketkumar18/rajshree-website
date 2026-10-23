@@ -62,9 +62,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           ...updated[existingIndex],
           quantity: newQty,
           totalPrice: newQty * unitPrice,
+          image: updated[existingIndex].image || product.image || (product.slug ? `/images/products/${product.slug}.jpg` : '/images/sweets-platter.jpg'),
         };
         return updated;
       } else {
+        const resolvedImage =
+          product.image ||
+          (product.slug ? `/images/products/${product.slug}.jpg` : '/images/sweets-platter.jpg');
+
         const newItem: CartItem = {
           productId: product.id,
           name: product.name,
@@ -76,7 +81,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           quantity,
           unitPrice,
           totalPrice: unitPrice * quantity,
-          image: product.image,
+          image: resolvedImage,
         };
         return [...prev, newItem];
       }

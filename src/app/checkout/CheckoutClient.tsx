@@ -451,16 +451,24 @@ export default function CheckoutClient({ settings }: CheckoutClientProps) {
           </h2>
 
           {/* Items breakdown */}
-          <div className="max-h-60 overflow-y-auto space-y-3 pr-1 text-xs">
+          <div className="max-h-64 overflow-y-auto space-y-2.5 pr-1 text-xs">
             {cart.map((item) => (
-              <div key={`${item.productId}-${item.variantLabel}`} className="flex justify-between items-start gap-2">
-                <div>
-                  <div className="font-semibold text-stone-800">{item.name}</div>
-                  <div className="text-stone-500">
+              <div key={`${item.productId}-${item.variantLabel}`} className="flex items-center gap-3 bg-stone-50/70 p-2 rounded-xl border border-stone-200/60">
+                <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-amber-50 border border-amber-200/80 shrink-0 shadow-2xs">
+                  <img
+                    src={item.image || (item.slug ? `/images/products/${item.slug}.jpg` : '/images/sweets-platter.jpg')}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/images/sweets-platter.jpg'; }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-stone-900 truncate">{item.name}</div>
+                  <div className="text-stone-500 text-[11px]">
                     {item.variantLabel} × {item.quantity}
                   </div>
                 </div>
-                <div className="font-bold text-stone-900 shrink-0">
+                <div className="font-bold text-stone-900 shrink-0 text-sm">
                   ₹{item.totalPrice}
                 </div>
               </div>

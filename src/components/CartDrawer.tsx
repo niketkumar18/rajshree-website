@@ -1,10 +1,41 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { X, Plus, Minus, Trash2, ArrowRight, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { CartItem } from '@/lib/types';
+
+function CartDrawerItemImage({ item }: { item: CartItem }) {
+  const defaultSrc = item.image || (item.slug ? `/images/products/${item.slug}.jpg` : '/images/sweets-platter.jpg');
+  const [src, setSrc] = useState(defaultSrc);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('rajshree_prod_overrides');
+      if (raw) {
+        const ov = JSON.parse(raw);
+        if (ov[item.productId]?.image) {
+          setSrc(ov[item.productId].image);
+          return;
+        }
+      }
+    } catch (e) {}
+    setSrc(item.image || (item.slug ? `/images/products/${item.slug}.jpg` : '/images/sweets-platter.jpg'));
+  }, [item.productId, item.image, item.slug]);
+
+  return (
+    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-amber-50 flex-shrink-0 border border-amber-200/80 shadow-2xs">
+      <img
+        src={src}
+        alt={item.name}
+        className="w-full h-full object-cover"
+        onError={() => setSrc('/images/sweets-platter.jpg')}
+      />
+    </div>
+  );
+}
 
 export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, subtotal } = useCart();
@@ -77,21 +108,7 @@ export default function CartDrawer() {
                   key={`${item.productId}-${item.variantLabel}`}
                   className="flex gap-3 bg-stone-50/80 p-3 rounded-xl border border-stone-200/60"
                 >
-                  <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-amber-100/50 flex-shrink-0">
-                    {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                        sizes="64px"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-brand-800 font-bold">
-                        RS
-                      </div>
-                    )}
-                  </div>
+                  <CartDrawerItemImage item={item} />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-1">

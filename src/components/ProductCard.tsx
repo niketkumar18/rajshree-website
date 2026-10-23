@@ -32,20 +32,30 @@ export default function ProductCard({ product }: ProductCardProps) {
   const currentVariantFactor = isKg ? selectedKgVariant.factor : 1.0;
   const currentPrice = Math.round(product.price * currentVariantFactor);
 
+  const [imageSrc, setImageSrc] = useState(product.image || `/images/products/${product.slug}.jpg`);
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem('rajshree_prod_overrides');
+      if (raw) {
+        const ov = JSON.parse(raw);
+        if (ov[product.id]?.image) {
+          setImageSrc(ov[product.id].image);
+          return;
+        }
+      }
+    } catch (e) {}
+    setImageSrc(product.image || `/images/products/${product.slug}.jpg`);
+  }, [product.id, product.image, product.slug]);
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!product.inStock) return;
 
-    addToCart(product, currentVariantLabel, currentVariantFactor, 1);
+    addToCart({ ...product, image: imageSrc }, currentVariantLabel, currentVariantFactor, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   };
-
-  const [imageSrc, setImageSrc] = useState(product.image || `/images/products/${product.slug}.jpg`);
-
-  React.useEffect(() => {
-    setImageSrc(product.image || `/images/products/${product.slug}.jpg`);
-  }, [product.image, product.slug]);
 
   return (
     <div className="group bg-white rounded-2xl border-2 border-orange-100 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden hover:border-brand-500">

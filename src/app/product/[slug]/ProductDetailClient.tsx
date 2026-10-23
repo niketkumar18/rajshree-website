@@ -56,14 +56,14 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
   const handleAddToCart = () => {
     if (!product.inStock) return;
-    addToCart(product, currentVariantLabel, currentVariantFactor, quantity);
+    addToCart({ ...product, image: detailImage }, currentVariantLabel, currentVariantFactor, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   };
 
   const handleBuyNow = () => {
     if (!product.inStock) return;
-    addToCart(product, currentVariantLabel, currentVariantFactor, quantity);
+    addToCart({ ...product, image: detailImage }, currentVariantLabel, currentVariantFactor, quantity);
     router.push('/checkout');
   };
 
