@@ -78,7 +78,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center gap-1.5 bg-white px-3.5 py-2 rounded-xl border border-orange-200 shadow-2xs">
                   <MapPin className="w-4 h-4 text-brand-600" />
-                  <span>Delivery within 8 km of Jigani</span>
+                  <span>Delivery within 3 km & Porter</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-white px-3.5 py-2 rounded-xl border border-orange-200 shadow-2xs">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />

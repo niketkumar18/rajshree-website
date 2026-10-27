@@ -13,7 +13,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-2 border-orange-200 shadow-sm">
       {/* Top Auspicious Announcement Bar with Sacred Inscription */}
-      <div className="bg-gradient-to-r from-orange-800 via-brand-600 to-amber-600 text-white text-xs py-1.5 px-3 sm:px-4 sm:pr-52">
+      <div className="bg-gradient-to-r from-orange-800 via-brand-600 to-amber-600 text-white text-xs py-1.5 px-3 sm:px-4 sm:pl-56">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
           {/* Sacred Inscription & Location */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -129,7 +129,7 @@ export default function Header() {
                 </span>
               )}
               {subtotal > 0 && (
-                <span className="hidden md:inline font-black border-l border-orange-400 pl-2 text-xs text-amber-200">
+                <span className="inline font-black border-l border-orange-400 pl-2 text-xs text-amber-200">
                   ₹{subtotal}
                 </span>
               )}

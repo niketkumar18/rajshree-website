@@ -14,8 +14,8 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const [selectedKgVariant, setSelectedKgVariant] = useState<{ label: string; factor: number }>({
-    label: '500g',
-    factor: 0.5,
+    label: '1 kg',
+    factor: 1.0,
   });
   const [added, setAdded] = useState(false);
 
@@ -61,14 +61,11 @@ export default function ProductCard({ product }: ProductCardProps) {
     <div className="group bg-white rounded-2xl border-2 border-orange-100 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden hover:border-brand-500">
       {/* Product Image & Badges */}
       <Link href={`/product/${product.slug}`} className="relative aspect-4/3 w-full bg-orange-50 overflow-hidden block">
-        <Image
+        <img
           src={imageSrc}
           alt={product.name}
-          fill
-          unoptimized={typeof imageSrc === 'string' && imageSrc.startsWith('http')}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={() => setImageSrc('/images/sweets-platter.jpg')}
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
         />
 
         {/* Veg icon & Category badge */}

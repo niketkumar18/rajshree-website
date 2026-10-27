@@ -91,7 +91,7 @@ export async function sendOrderNotificationEmail(
             <tr>
               <td style="padding: 4px 0; color: #78716c;">Fulfilment:</td>
               <td style="padding: 4px 0; font-weight: bold; color: ${order.fulfilmentType === 'DELIVERY' ? '#0369a1' : '#7e22ce'};">
-                ${order.fulfilmentType === 'DELIVERY' ? 'Local Delivery (8 km)' : 'Store Pickup (Jigani Store)'}
+                ${order.fulfilmentType === 'DELIVERY' ? 'Local Delivery (within 3 km / Porter)' : 'Store Pickup (Jigani Store)'}
               </td>
             </tr>
             ${order.fulfilmentType === 'DELIVERY' && order.address ? `

@@ -193,10 +193,13 @@ export default function CheckoutClient({ settings }: CheckoutClientProps) {
                 <div>
                   <div className="font-bold text-sm text-stone-900">Local Delivery</div>
                   <div className="text-xs text-stone-500 mt-0.5">
-                    Within 8 km of Jigani store
+                    Within {settings.deliveryRadiusKm} km of Jigani store
                   </div>
                   <div className="text-[11px] font-semibold text-brand-800 mt-1">
-                    Fee: ₹{settings.deliveryFee} (Free above ₹{settings.freeDeliveryAbove})
+                    Fee: ₹{settings.deliveryFee} (FREE above ₹{settings.freeDeliveryAbove})
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-0.5">
+                    Beyond 3 km: Dispatched via Porter / similar app at actuals
                   </div>
                 </div>
               </button>

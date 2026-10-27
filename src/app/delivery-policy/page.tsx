@@ -18,21 +18,23 @@ export default function DeliveryPolicyPage() {
         <section className="space-y-2">
           <h2 className="text-lg font-bold text-stone-900">1. Service Area & Delivery Radius</h2>
           <p>
-            We provide direct local delivery within an <strong>8-kilometer radius</strong> of our retail store in Jigani, Bengaluru.
+            We provide direct local delivery within a <strong>3-kilometer radius</strong> of our retail store in Jigani, Bengaluru. For orders beyond 3 km, deliveries are fulfilled via <strong>Porter, Dunzo, or similar delivery apps</strong> at actual fare.
           </p>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Service Locations:</strong> Jigani Industrial Area, APC Circle, Haragadde, Madapatna, Vaddarapalya, Anekal Main Road stretch, and surrounding residential communities within the 8 km perimeter.</li>
+            <li><strong>Direct Service Area (within 3 km):</strong> Jigani Industrial Area, APC Circle, Haragadde, Madapatna, Vaddarapalya, and nearby neighborhoods.</li>
+            <li><strong>Beyond 3 km:</strong> Dispatched via Porter or courier app. Customers can also arrange their own pickup.</li>
             <li><strong>Delivery Hours:</strong> Orders received between <strong>9:00 AM and 9:00 PM</strong> are processed for same-day delivery.</li>
-            <li><strong>Estimated Delivery Time:</strong> Typical local delivery takes 45 to 75 minutes, depending on the distance, order preparation time, and weather/traffic conditions.</li>
+            <li><strong>Estimated Delivery Time:</strong> Typical local delivery takes 30 to 60 minutes, depending on the distance and order preparation.</li>
           </ul>
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-lg font-bold text-stone-900">2. Delivery Fees & Minimum Order Threshold</h2>
+          <h2 className="text-lg font-bold text-stone-900">2. Delivery Fees & Free Delivery Threshold</h2>
           <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-2 text-xs">
-            <p><strong>Minimum Order for Local Delivery:</strong> ₹500</p>
-            <p><strong>Standard Local Delivery Fee:</strong> ₹50</p>
-            <p><strong>Free Delivery:</strong> Applied automatically on all orders with a subtotal of ₹1,000 or above.</p>
+            <p><strong>Minimum Order for Delivery:</strong> ₹500</p>
+            <p><strong>Standard Local Delivery Fee (within 3 km):</strong> ₹50</p>
+            <p><strong>Free Delivery:</strong> Applied automatically on all orders of ₹1,000 or above within 3 km!</p>
+            <p><strong>Beyond 3 km:</strong> Billed at actual fare via Porter or similar delivery app.</p>
           </div>
         </section>
 

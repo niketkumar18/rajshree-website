@@ -23,8 +23,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const isPlate = product.unit === 'PLATE';
 
   const [selectedKgVariant, setSelectedKgVariant] = useState<{ label: string; factor: number }>({
-    label: '500g',
-    factor: 0.5,
+    label: '1 kg',
+    factor: 1.0,
   });
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -88,15 +88,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         <div className="lg:col-span-6">
           <div className="relative aspect-4/3 sm:aspect-square w-full rounded-2xl overflow-hidden bg-amber-50 border border-amber-200/50 shadow-inner">
             {detailImage ? (
-              <Image
+              <img
                 src={detailImage}
                 alt={product.name}
-                fill
-                priority
-                unoptimized={typeof detailImage === 'string' && detailImage.startsWith('http')}
+                className="w-full h-full object-cover"
                 onError={() => setDetailImage('/images/sweets-platter.jpg')}
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-brand-100 text-brand-900 font-bold text-4xl">
