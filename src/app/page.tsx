@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { ArrowRight, MapPin, Clock, Phone, Sparkles, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { getProducts, getSettings } from '@/lib/db';
 import ProductCard from '@/components/ProductCard';
+import FestiveSlider from '@/components/FestiveSlider';
 
 export const dynamic = 'force-dynamic';
 
@@ -133,52 +134,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Diwali & Festive Offer Banner */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-10 relative z-20">
-        <div className="bg-gradient-to-r from-amber-950 via-orange-950 to-amber-900 text-white rounded-3xl p-6 sm:p-8 border-2 border-amber-400 shadow-2xl relative overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            <div className="md:col-span-8 space-y-3">
-              <div className="inline-flex items-center gap-1.5 bg-amber-400/20 text-amber-300 px-3 py-1 rounded-full text-xs font-bold border border-amber-400/30">
-                <span>🪔</span>
-                <span>Special Festive Offer • Valid till 10th Nov 2026</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black font-serif text-amber-100">
-                Celebrate with Sweetness: Flat 15% OFF on Pure Ghee Sweets
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-2xl">
-                Order your favorite Kaju Katli, Mawa Peda, Chena Sweets, Ghee Ladoos & festive packs. Get an instant 15% discount on all sweets when you purchase for ₹2,000 or more!
-              </p>
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <div className="flex items-center gap-2 bg-stone-900/90 border border-amber-400/60 px-3.5 py-2 rounded-xl">
-                  <span className="text-xs text-stone-300">Use Promo Code:</span>
-                  <code className="text-amber-300 font-mono font-black text-sm tracking-wider">DIWALI15</code>
-                </div>
-                <Link
-                  href="/shop?category=SWEETS"
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-stone-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
-                >
-                  <span>Order Sweets (Code: DIWALI15)</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-            <div className="md:col-span-4 flex justify-center">
-              <div className="relative w-48 h-36 sm:w-56 sm:h-44 rounded-2xl overflow-hidden border-2 border-amber-400/50 shadow-lg bg-stone-900">
-                <img
-                  src="/images/sweets-platter.jpg"
-                  alt="Diwali Sweets Platter"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent flex items-end p-2.5">
-                  <span className="text-[11px] font-bold text-amber-200">
-                    100% Pure Ghee • Authentic Taste
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Interactive Festive Showcase & Marketing Slider */}
+      <FestiveSlider />
 
       {/* Categories Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
