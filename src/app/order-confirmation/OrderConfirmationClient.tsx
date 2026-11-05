@@ -229,6 +229,12 @@ export default function OrderConfirmationClient({
               <span>Subtotal</span>
               <span className="font-medium">₹{order.subtotal}</span>
             </div>
+            {order.subtotal + order.deliveryFee > order.totalAmount && (
+              <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded">
+                <span>🪔 Festive Sweets Discount (DIWALI15)</span>
+                <span>-₹{(order.subtotal + order.deliveryFee) - order.totalAmount}</span>
+              </div>
+            )}
             <div className="flex justify-between text-stone-600">
               <span>Delivery Fee</span>
               <span className="font-medium">

@@ -46,6 +46,10 @@ export default function CartDrawer() {
 
   const remainingForFreeDelivery = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
   const isMinOrderMet = subtotal >= MIN_ORDER;
+  const sweetsSubtotal = cart
+    .filter(item => item.category === 'SWEETS')
+    .reduce((sum, item) => sum + item.totalPrice, 0);
+  const isDiwaliEligible = subtotal >= 2000 && sweetsSubtotal > 0;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -72,7 +76,7 @@ export default function CartDrawer() {
           </div>
 
           {/* Free Delivery Bar */}
-          <div className="bg-amber-100/60 px-4 py-2 text-xs text-amber-900 flex items-center justify-between">
+          <div className="bg-amber-100/60 px-4 py-2 text-xs text-amber-900 flex items-center justify-between border-b border-amber-200/50">
             {remainingForFreeDelivery > 0 ? (
               <span>
                 Add <strong className="text-brand-800">₹{remainingForFreeDelivery}</strong> more for <strong>Free Local Delivery</strong>!
@@ -83,6 +87,28 @@ export default function CartDrawer() {
               </span>
             )}
           </div>
+
+          {/* Diwali 15% OFF Sweets Offer Bar */}
+          {cart.length > 0 && (
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-2 text-xs border-b border-orange-200 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span>🪔</span>
+                {isDiwaliEligible ? (
+                  <span className="text-emerald-800 font-semibold text-[11px]">
+                    🎉 <strong>15% OFF Sweets unlocked!</strong> Use code <strong className="font-mono bg-white px-1 py-0.5 rounded border border-orange-300">DIWALI15</strong> at checkout (Save ₹{Math.round(sweetsSubtotal * 0.15)}).
+                  </span>
+                ) : subtotal < 2000 ? (
+                  <span className="text-stone-700 text-[11px]">
+                    Diwali Offer: Add <strong className="text-brand-800">₹{2000 - subtotal}</strong> more to unlock <strong>15% OFF Sweets</strong>!
+                  </span>
+                ) : (
+                  <span className="text-stone-700 text-[11px]">
+                    Diwali Offer: Add sweets to your cart to get <strong>15% OFF</strong> with code <strong className="font-mono">DIWALI15</strong>!
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Cart Item List */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">

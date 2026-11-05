@@ -40,6 +40,76 @@ export default function CheckoutClient({ settings }: CheckoutClientProps) {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Coupon & Festive Offer State
+  const [couponInput, setCouponInput] = useState('DIWALI15');
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [couponMessage, setCouponMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Sweets items subtotal
+  const sweetsSubtotal = cart
+    .filter((item) => item.category === 'SWEETS')
+    .reduce((sum, item) => sum + item.totalPrice, 0);
+
+  // DIWALI15 offer logic (Valid till 10th Nov 2026: 15% off sweets on min 2k order)
+  const isDiwaliEligible = subtotal >= 2000 && sweetsSubtotal > 0;
+  const diwaliDiscount =
+    appliedCoupon === 'DIWALI15' && isDiwaliEligible
+      ? Math.round(sweetsSubtotal * 0.15)
+      : 0;
+
+  // Auto-apply if eligible on checkout mount
+  React.useEffect(() => {
+    if (isDiwaliEligible && !appliedCoupon) {
+      setAppliedCoupon('DIWALI15');
+      setCouponMessage({
+        type: 'success',
+        text: `🎉 Festive Offer DIWALI15 auto-applied! You save ₹${Math.round(sweetsSubtotal * 0.15)} (15% OFF on Sweets).`,
+      });
+    }
+  }, [isDiwaliEligible]);
+
+  const handleApplyCoupon = (codeToApply?: string) => {
+    const code = (codeToApply || couponInput).trim().toUpperCase();
+    if (!code) {
+      setCouponMessage({ type: 'error', text: 'Please enter a coupon code.' });
+      return;
+    }
+
+    if (code === 'DIWALI15') {
+      if (subtotal < 2000) {
+        setCouponMessage({
+          type: 'error',
+          text: `Minimum purchase of ₹2,000 required for DIWALI15. Add ₹${2000 - subtotal} more to qualify!`,
+        });
+        return;
+      }
+      if (sweetsSubtotal <= 0) {
+        setCouponMessage({
+          type: 'error',
+          text: 'DIWALI15 offer applies to Sweets. Please add sweets to your cart to enjoy 15% off!',
+        });
+        return;
+      }
+      setAppliedCoupon('DIWALI15');
+      setCouponInput('DIWALI15');
+      setCouponMessage({
+        type: 'success',
+        text: `🎉 Festive Offer DIWALI15 applied! You save ₹${Math.round(sweetsSubtotal * 0.15)} (15% OFF on Sweets).`,
+      });
+    } else {
+      setCouponMessage({
+        type: 'error',
+        text: 'Invalid promo code. Use code DIWALI15 for 15% off sweets on orders above ₹2,000.',
+      });
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponMessage(null);
+  };
+
   // Calculations
   const isDelivery = fulfilmentType === 'DELIVERY';
   const deliveryFee = isDelivery
@@ -48,7 +118,7 @@ export default function CheckoutClient({ settings }: CheckoutClientProps) {
       : settings.deliveryFee
     : 0;
 
-  const totalAmount = subtotal + deliveryFee;
+  const totalAmount = Math.max(0, subtotal - diwaliDiscount + deliveryFee);
   const isMinOrderMet = !isDelivery || subtotal >= settings.minOrderValue;
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
@@ -98,6 +168,7 @@ export default function CheckoutClient({ settings }: CheckoutClientProps) {
           landmark,
           pincode,
           notes,
+          couponCode: appliedCoupon,
           paymentUtr,
           items: cart,
         }),
@@ -478,12 +549,87 @@ export default function CheckoutClient({ settings }: CheckoutClientProps) {
             ))}
           </div>
 
+          {/* Coupon / Festive Offer Box */}
+          <div className="pt-3 border-t border-stone-100 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1">
+                <span>🪔</span>
+                <span>Festive Offer / Promo Code</span>
+              </label>
+              {!appliedCoupon && isDiwaliEligible && (
+                <button
+                  type="button"
+                  onClick={() => handleApplyCoupon('DIWALI15')}
+                  className="text-[10px] bg-amber-100 hover:bg-amber-200 text-brand-900 font-bold px-2 py-0.5 rounded transition"
+                >
+                  Apply DIWALI15
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                placeholder="Enter promo code (e.g. DIWALI15)"
+                disabled={Boolean(appliedCoupon)}
+                className={`flex-1 px-3 py-2 bg-stone-50 border rounded-xl text-xs font-mono font-bold uppercase ${
+                  appliedCoupon ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'border-stone-200 focus:bg-white'
+                }`}
+              />
+              {appliedCoupon ? (
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  className="px-3 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition"
+                >
+                  Remove
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleApplyCoupon()}
+                  className="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold transition shadow-xs"
+                >
+                  Apply
+                </button>
+              )}
+            </div>
+
+            {couponMessage && (
+              <p
+                className={`text-[11px] font-medium leading-tight ${
+                  couponMessage.type === 'success' ? 'text-emerald-700' : 'text-red-600'
+                }`}
+              >
+                {couponMessage.text}
+              </p>
+            )}
+
+            {!appliedCoupon && !couponMessage && (
+              <p className="text-[10px] text-stone-500">
+                Use code <strong>DIWALI15</strong> for 15% OFF on Sweets on orders of ₹2,000 or above (Valid till 10th Nov).
+              </p>
+            )}
+          </div>
+
           {/* Pricing calculations */}
           <div className="pt-3 border-t border-stone-100 space-y-2 text-xs">
             <div className="flex justify-between text-stone-600">
               <span>Items Subtotal</span>
               <span className="font-semibold text-stone-800">₹{subtotal}</span>
             </div>
+
+            {diwaliDiscount > 0 && (
+              <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50/80 px-2 py-1.5 rounded-lg border border-emerald-200">
+                <span className="flex items-center gap-1">
+                  <span>🪔</span>
+                  <span>Diwali Sweets Discount ({appliedCoupon})</span>
+                </span>
+                <span>-₹{diwaliDiscount}</span>
+              </div>
+            )}
 
             <div className="flex justify-between text-stone-600">
               <span>Fulfilment ({isDelivery ? 'Local Delivery' : 'Store Pickup'})</span>

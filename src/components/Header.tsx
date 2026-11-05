@@ -147,6 +147,22 @@ export default function Header() {
         </div>
       </div>
 
+      {/* Festive & Diwali Offer Ribbon */}
+      <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-brand-700 text-white text-xs py-1.5 px-3 sm:px-4 text-center font-bold shadow-xs border-t border-amber-300/40">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+          <span className="text-amber-200">🪔 Festive Celebration Offer:</span>
+          <span>Flat <strong>15% OFF</strong> on Sweets (Min order ₹2,000)!</span>
+          <span className="hidden xs:inline">Use Code:</span>
+          <span className="bg-white text-brand-950 font-mono font-black px-2 py-0.5 rounded shadow-xs tracking-wider text-[11px]">
+            DIWALI15
+          </span>
+          <span className="text-amber-200 text-[11px] font-normal">| Valid till 10th Nov 2026</span>
+          <Link href="/shop?category=SWEETS" className="underline hover:text-amber-200 text-[11px] font-bold ml-1">
+            Order Sweets →
+          </Link>
+        </div>
+      </div>
+
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-orange-100 bg-white px-4 pt-3 pb-5 space-y-1 shadow-lg">

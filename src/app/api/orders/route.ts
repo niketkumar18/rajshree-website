@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       landmark,
       pincode,
       notes,
+      couponCode,
       items,
       paymentUtr,
     } = body;
@@ -102,9 +103,30 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const totalAmount = serverSubtotal + deliveryFee;
+    // Check for festive promo code: DIWALI15 (15% off sweets on min ₹2,000 order)
+    let discountAmount = 0;
+    let appliedCouponTag = '';
+    const cleanCoupon = typeof couponCode === 'string' ? couponCode.trim().toUpperCase() : '';
+
+    if (cleanCoupon === 'DIWALI15') {
+      const sweetsSubtotal = validatedItems.reduce((sum, it) => {
+        const prod = getProductById(it.productId);
+        return prod?.category === 'SWEETS' ? sum + it.itemTotal : sum;
+      }, 0);
+
+      if (serverSubtotal >= 2000 && sweetsSubtotal > 0) {
+        discountAmount = Math.round(sweetsSubtotal * 0.15);
+        appliedCouponTag = `[Festive Coupon: DIWALI15 (-₹${discountAmount})]`;
+      }
+    }
+
+    const totalAmount = Math.max(0, serverSubtotal - discountAmount + deliveryFee);
 
     // Create order with initial status Pending Payment
+    const finalNotes = appliedCouponTag
+      ? `${appliedCouponTag} ${notes ? notes.trim() : ''}`.trim()
+      : notes ? notes.trim() : '';
+
     const newOrder = createOrder(
       {
         customerName: customerName.trim(),
@@ -114,7 +136,7 @@ export async function POST(req: NextRequest) {
         address: address ? address.trim() : '',
         landmark: landmark ? landmark.trim() : '',
         pincode: pincode ? pincode.trim() : '',
-        notes: notes ? notes.trim() : '',
+        notes: finalNotes,
         subtotal: serverSubtotal,
         deliveryFee,
         totalAmount,

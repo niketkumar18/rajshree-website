@@ -47,6 +47,8 @@ export async function sendOrderNotificationEmail(
     )
     .join('\n');
 
+  const discountAmount = Math.max(0, (order.subtotal + order.deliveryFee) - order.totalAmount);
+
   const htmlBody = `
     <!DOCTYPE html>
     <html>
@@ -143,6 +145,11 @@ export async function sendOrderNotificationEmail(
                 <td style="color: #78716c; padding: 3px 0;">Delivery Fee:</td>
                 <td style="text-align: right; color: #1c1917; font-weight: bold;">${order.deliveryFee === 0 ? 'FREE' : `₹${order.deliveryFee}`}</td>
               </tr>
+              ${discountAmount > 0 ? `
+              <tr>
+                <td style="color: #16a34a; padding: 3px 0; font-weight: bold;">Festive Offer Discount (DIWALI15):</td>
+                <td style="text-align: right; color: #16a34a; font-weight: bold;">-₹${discountAmount}</td>
+              </tr>` : ''}
               <tr style="font-size: 18px; font-weight: 900; color: #c2410c;">
                 <td style="padding: 8px 0 0;">Total Payable:</td>
                 <td style="text-align: right; padding: 8px 0 0;">₹${order.totalAmount}</td>
@@ -191,7 +198,7 @@ ITEMS ORDERED:
 ${itemsText}
 
 Subtotal: ₹${order.subtotal}
-Delivery Fee: ₹${order.deliveryFee}
+${discountAmount > 0 ? `Festive Offer Discount (DIWALI15): -₹${discountAmount}\n` : ''}Delivery Fee: ₹${order.deliveryFee}
 Total Amount: ₹${order.totalAmount}
 Payment Status: ${order.paymentStatus}
 
