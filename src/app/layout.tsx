@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import LordRamCorner from '@/components/LordRamCorner';
+import SweetShopBot from '@/components/SweetShopBot';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://sribhog.in'),
@@ -59,6 +60,7 @@ export default function RootLayout({
           <CartDrawer />
           <main className="flex-1">{children}</main>
           <Footer />
+          <SweetShopBot />
         </CartProvider>
       </body>
     </html>
