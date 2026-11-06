@@ -41,6 +41,7 @@ interface Message {
 const QUICK_CHIPS = [
   { label: '🪔 15% Festive Offer', query: 'What is the festive offer?' },
   { label: '🛵 Delivery Charges & Radius', query: 'What are the delivery charges and area?' },
+  { label: '📸 Instagram & Facebook', query: 'Where can I find your Instagram and Facebook pages?' },
   { label: '🍬 Kaju Katli Price', query: 'What is the price of Kaju Katli?' },
   { label: '🎁 Gift Hampers (₹900)', query: 'Tell me about the Diwali gift hampers' },
   { label: '📍 Store Location & Hours', query: 'Where is your shop and what are your timings?' },
@@ -117,6 +118,29 @@ export default function SweetShopBot() {
           type: 'whatsapp',
           label: 'Order Gift Hamper on WhatsApp',
           url: 'https://wa.me/918050832752?text=Hello%20Rajshree%20Sweets%2C%20I%20want%20to%20order%20the%20Festive%20Gift%20Hamper%20(Rs%20900)',
+        },
+        timestamp: time,
+      };
+    }
+
+    // 2b. Social Media Channels (Instagram & Facebook)
+    if (
+      q.includes('instagram') ||
+      q.includes('insta') ||
+      q.includes('facebook') ||
+      q.includes('fb') ||
+      q.includes('social') ||
+      q.includes('page') ||
+      q.includes('follow')
+    ) {
+      return {
+        id: `bot-${Date.now()}`,
+        sender: 'bot',
+        text: '📱 Connect with Rajshree Sweets & Snacks online:\n\n• Instagram: @rajshree_ss26\n• Facebook: Rajshree Sweets & Snacks\n\nFollow us for daily fresh mithai prep videos, festive gift hampers, and exclusive celebration offers!',
+        action: {
+          type: 'link',
+          label: 'Visit Instagram (@rajshree_ss26)',
+          url: 'https://www.instagram.com/rajshree_ss26/',
         },
         timestamp: time,
       };
@@ -487,6 +511,16 @@ export default function SweetShopBot() {
                           className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-[11px] shadow-xs transition"
                         >
                           <Phone className="w-3 h-3" />
+                          <span>{m.action.label}</span>
+                          <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      ) : m.action.url.startsWith('http') ? (
+                        <a
+                          href={m.action.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 bg-brand-700 hover:bg-brand-800 text-white font-bold px-3 py-1.5 rounded-lg text-[11px] shadow-xs transition"
+                        >
                           <span>{m.action.label}</span>
                           <ExternalLink className="w-2.5 h-2.5" />
                         </a>
