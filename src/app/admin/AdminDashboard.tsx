@@ -17,6 +17,7 @@ import {
   Package,
   Settings,
   Download,
+  Copy,
   LogOut,
   Edit,
   Plus,
@@ -42,6 +43,7 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [loadingData, setLoadingData] = useState(false);
+  const [overridesCount, setOverridesCount] = useState<number>(0);
 
   // Filters & Search
   const [orderSearch, setOrderSearch] = useState('');
@@ -165,9 +167,15 @@ export default function AdminDashboard() {
           const raw = localStorage.getItem('rajshree_prod_overrides');
           if (raw) {
             const ov = JSON.parse(raw);
+            const count = Object.keys(ov).length;
+            setOverridesCount(count);
             prods = prods.map(p => ov[p.id] ? { ...p, ...ov[p.id] } : p);
+          } else {
+            setOverridesCount(0);
           }
-        } catch (e) {}
+        } catch (e) {
+          setOverridesCount(0);
+        }
         setProducts(prods);
       }
       if (setRes.ok) {
@@ -324,6 +332,40 @@ export default function AdminDashboard() {
       alert('Failed to save settings');
     } finally {
       setSettingsSaving(false);
+    }
+  };
+
+  const handleCopyOverrides = () => {
+    try {
+      const raw = localStorage.getItem('rajshree_prod_overrides');
+      if (!raw || raw === '{}') {
+        alert('No custom product/image edits found in this browser.');
+        return;
+      }
+      navigator.clipboard.writeText(raw);
+      const count = Object.keys(JSON.parse(raw)).length;
+      alert(`✅ Copied ${count} customized products & image URLs to clipboard!\n\nYou can now paste it directly into our chat.`);
+    } catch (e) {
+      alert('Could not copy to clipboard. Please allow clipboard permissions.');
+    }
+  };
+
+  const handleExportOverrides = () => {
+    try {
+      const raw = localStorage.getItem('rajshree_prod_overrides');
+      if (!raw || raw === '{}') {
+        alert('No custom product/image edits found in this browser.');
+        return;
+      }
+      const blob = new Blob([raw], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rajshree-product-images-backup.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Could not download file.');
     }
   };
 
@@ -759,6 +801,48 @@ export default function AdminDashboard() {
       {/* TAB 2: PRODUCTS CATALOGUE MANAGEMENT */}
       {activeTab === 'products' && (
         <div className="space-y-4">
+          {overridesCount > 0 && (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                  <Download className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-bold text-sm text-stone-900 font-serif">
+                      {overridesCount} Product Image / Detail Updates Detected in this Browser!
+                    </h4>
+                    <span className="bg-amber-200 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
+                      Action Required
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-600 mt-1 max-w-2xl leading-relaxed">
+                    These image URLs are currently saved in this Chrome browser. To make them permanently appear on <strong>all other laptops, phones, and devices</strong>, click <strong>Copy Saved Changes</strong> (or Download JSON) and paste it into the assistant chat so all images can be downloaded into the project code!
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={handleCopyOverrides}
+                  className="flex-1 sm:flex-initial bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                >
+                  <Copy className="w-4 h-4" />
+                  <span>Copy Saved Changes</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportOverrides}
+                  className="flex-1 sm:flex-initial bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs px-4 py-2.5 rounded-xl border border-amber-300 shadow-2xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download JSON</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-white p-4 rounded-2xl border border-stone-200">
             <div className="flex flex-1 items-center gap-3">
               <div className="relative flex-1 max-w-sm">
@@ -785,26 +869,38 @@ export default function AdminDashboard() {
               </select>
             </div>
 
-            <button
-              onClick={() => {
-                setEditingProduct(null);
-                setProdFormData({
-                  name: '',
-                  category: 'SWEETS',
-                  unit: 'KG',
-                  price: 500,
-                  image: '',
-                  description: '',
-                  inStock: true,
-                  featured: false,
-                });
-                setIsAddingProduct(true);
-              }}
-              className="bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add New Product</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCopyOverrides}
+                title="Copy all local image customizations saved in this browser"
+                className="bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold px-3 py-2.5 rounded-xl flex items-center justify-center gap-1.5 border border-stone-200 shadow-2xs transition"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Copy Changes</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingProduct(null);
+                  setProdFormData({
+                    name: '',
+                    category: 'SWEETS',
+                    unit: 'KG',
+                    price: 500,
+                    image: '',
+                    description: '',
+                    inStock: true,
+                    featured: false,
+                  });
+                  setIsAddingProduct(true);
+                }}
+                className="bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-xs"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Product</span>
+              </button>
+            </div>
           </div>
 
           {/* Products List Table */}
@@ -1091,6 +1187,38 @@ export default function AdminDashboard() {
                 <Download className="w-4 h-4" />
                 <span>Export JSON</span>
               </a>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-300 gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-bold text-sm text-amber-950">Export Browser Customizations & Image URLs</h4>
+                  <span className="text-[10px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">
+                    {overridesCount} Items
+                  </span>
+                </div>
+                <p className="text-xs text-amber-800 mt-0.5">
+                  Backup all image URLs and edits saved in this browser to a JSON file or copy to clipboard.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleCopyOverrides}
+                  className="bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs flex items-center gap-1.5"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportOverrides}
+                  className="bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold text-xs px-3.5 py-2 rounded-xl border border-amber-400 shadow-xs flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
